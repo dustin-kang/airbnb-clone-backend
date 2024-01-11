@@ -6,7 +6,7 @@ from .models import User
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     fieldsets = (
-        ('Profile', {"fields": ("username", "password", "name", "is_host"), "classes":("wide")}),
+        ('Profile', {"fields": ("avatar", "username", "password", "name", "is_host", "gender", "language", "currency"), "classes":("wide")}),
         ('Permissions', {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions"), "classes": ("collapse",)}),
         ("Important Dates", {"fields": ("last_login", "date_joined"), "classes": ("collapse",)})
     )
