@@ -36,6 +36,7 @@ CUSTOM_APPS = [
     'users.apps.UsersConfig',
     'experiences.apps.ExperiencesConfig',
     'categories.apps.CategoriesConfig',
+    'reviews.apps.ReviewsConfig',
 ]
 
 SYSTEM_APPS = [
