@@ -32,6 +32,19 @@ class RoomAdmin(admin.ModelAdmin):
     # def total_amenities(self, room):
     #     return room.amenities.count()
 
+    search_fields = (
+        # ^ : startwith
+        # = : iexact
+        #   : icontains
+        # @ : search
+        # foreginkey__related_fieldname 
+
+        '^name', # 먼저 찾고
+        '=price', # 그 다음 찾고
+        'owner__username',
+
+    )
+
 @admin.register(Amenity)
 class AmenityAdmin(admin.ModelAdmin):
     list_display = (
