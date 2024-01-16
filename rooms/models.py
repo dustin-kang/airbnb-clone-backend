@@ -24,13 +24,15 @@ class Room(models.Model):
         max_length=20,
         choices=RoomKindChoice.choices,
     )
-    owner = models.ForeignKey("users.User", on_delete = models.CASCADE, )
+    owner = models.ForeignKey("users.User", on_delete = models.CASCADE, related_name="rooms")
     amenities = models.ManyToManyField("rooms.Amenity", )
-    category = models.ForeignKey("categories.Category", on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey("categories.Category", on_delete=models.SET_NULL, null=True, blank=True, related_name="rooms")
 
     def __str__(self):
         return self.name
 
+    def total_amenities(self):
+        return self.amenities.count()
 
 class Amenity(CommonModel): # CommonModel 상속
 

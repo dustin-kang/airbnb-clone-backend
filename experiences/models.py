@@ -14,14 +14,14 @@ class Experience(CommonModel):
         default="서울",
     )
     name = models.CharField(max_length=180)
-    host = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    host = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="experiences")
     address = models.CharField(max_length=250, null=True)
     price = models.PositiveIntegerField()
     start = models.TimeField()
     end = models.TimeField()
     description = models.TextField()
-    perks = models.ManyToManyField("experiences.Perk")
-    category = models.ForeignKey("categories.Category", on_delete=models.SET_NULL, null=True, blank=True)
+    perks = models.ManyToManyField("experiences.Perk", related_name="experiences")
+    category = models.ForeignKey("categories.Category", on_delete=models.SET_NULL, null=True, blank=True, related_name="experiences")
 
     def __str__(self):
         return self.name

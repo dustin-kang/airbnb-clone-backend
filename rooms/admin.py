@@ -9,6 +9,7 @@ class RoomAdmin(admin.ModelAdmin):
         "country",
         "city",
         "price",
+        "total_amenities",
         "rooms",
         "toilets",
         "pet_friendly",
@@ -26,6 +27,9 @@ class RoomAdmin(admin.ModelAdmin):
         "kind",
         "amenities",        
     )
+
+    # def total_amenities(self, room):
+    #     return room.amenities.count()
 
 @admin.register(Amenity)
 class AmenityAdmin(admin.ModelAdmin):
