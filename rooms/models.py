@@ -31,8 +31,22 @@ class Room(models.Model):
     def __str__(self):
         return self.name
 
-    def total_amenities(self):
-        return self.amenities.count()
+    def total_amenities(room):
+        return room.amenities.count()
+    
+    def rating(room):
+        count =  room.reviews.count()
+        if count == 0:
+            return "No Reviews"
+        else:
+            total_rating = 0
+            for review in room.reviews.all().values("rating"):
+                # 최적화
+                # 3. room.reviews.all()
+                # 2. room.reviews.all().values("rating")
+                # 1. room.reviews.aggregate(avg('rating'))
+                total_rating += review['rating']
+                return round(total_rating / count, 2)
 
 class Amenity(CommonModel): # CommonModel 상속
 

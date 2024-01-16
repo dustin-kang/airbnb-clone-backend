@@ -10,6 +10,7 @@ class RoomAdmin(admin.ModelAdmin):
         "city",
         "price",
         "total_amenities",
+        "rating",
         "rooms",
         "toilets",
         "pet_friendly",
