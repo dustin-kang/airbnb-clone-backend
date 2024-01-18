@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -8,14 +9,14 @@ from .serializers import CategorySerializer
 
 # Create your views here.
 
-@api_view(["GET", "POST"])
-def categories(request):
-
-    if request.method == "GET":
+class Categories(APIView):
+    
+    def get(self, request):
         all_categories = Category.objects.all()
         serializers = CategorySerializer(all_categories, many=True)
         return Response(serializers.data)
-    elif request.method == "POST":
+    
+    def post(self, request):
         # Category.objects.create()에 request 받은 정보를 담을 수 있으나 검증을 하지 않은채 응답받음.
         serializers = CategorySerializer(data=request.data)
         if serializers.is_valid():
@@ -26,25 +27,35 @@ def categories(request):
         else:
             return Response(serializers.errors)
 
-@api_view(["GET", "PUT", "DELETE"])
-def category(request, pk):
-    try:
-        category = Category.objects.get(pk=pk)
-    except Category.DoesNotExist:
-        raise NotFound
-    if request.method == "GET":
-        serializer = CategorySerializer(category)
+
+class CategoryDetail(APIView): # Category 모델과 혼동 방지를 위해 변경
+    
+    def get_object(self, pk):
+        """
+        해당 데이터가 있는지 없는지 확인해서 쿼리셋 반환
+        """
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            raise NotFound  
+        return category      
+
+    def get(self, request, pk):
+        serializer = CategorySerializer(self.get_object(pk))
         return Response(serializer.data)
-    elif request.method == "PUT":
-        serializer = CategorySerializer(category, data=request.data, partial=True)
+    
+    def put(self, request, pk):
+        serializer = CategorySerializer(self.get_object(pk), data=request.data, partial=True)
         if serializer.is_valid():
             updated_category = serializer.save()
             return Response(CategorySerializer(updated_category).data)
         else:
             return Response(serializer.errors)
-    elif request.mehtod == "DELETE":
-        category.delete()
+        
+    def delete(self, request, pk):
+        self.get_object(pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
         
 
 
