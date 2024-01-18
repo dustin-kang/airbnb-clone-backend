@@ -10,3 +10,9 @@ class CategorySerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data) ## **는 딕셔너리를 가져오게 된다.
+    
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get("name", instance.name)
+        instance.kind = validated_data.get("name", instance.kind)
+        instance.save()
+        return instance
