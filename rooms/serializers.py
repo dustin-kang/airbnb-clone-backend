@@ -10,8 +10,8 @@ class AmenitySerializer(ModelSerializer):
 
 class RoomDetailSerializer(ModelSerializer):
     
-    # foreign Key, ManytoMany : depth로 모든 필드를 가져오는 것보다 효율적이다.
-    owner = TinyUserSerializer()
+    # foreign Key{}, ManytoMany[{}] : depth로 모든 필드를 가져오는 것보다 효율적이다.
+    owner = TinyUserSerializer(read_only=True) # 사용자에게 owner 입력에 대한 권한을 주면 안됨. -> read_only=True
     amenities = AmenitySerializer(many=True)
     category = CategorySerializer()
 
