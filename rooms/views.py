@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, NotAuthenticated
 from rooms.models import Amenity, Room
 from rooms.serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
 # Create your views here.
@@ -62,13 +62,16 @@ class Rooms(APIView):
         return Response(serializer.data)
     
     def post(self, request):
-        serializer = RoomDetailSerializer(data=request.data)
-        if serializer.is_valid():
-            room = serializer.save()
-            serializer = RoomDetailSerializer(room)
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+        if request.user.is_authenticated: # 사용자가 맞는지 인증
+            serializer = RoomDetailSerializer(data=request.data)
+            if serializer.is_valid():
+                room = serializer.save(owner=request.user) # owner에 유저 정보를 담음
+                serializer = RoomDetailSerializer(room)
+                return Response(serializer.data)
+            else:
+                return Response(serializer.errors)
+        else: # 사용자가 아닌경우
+            raise NotAuthenticated
 
 class RoomDetail(APIView):
     def get_object(self, pk):
