@@ -69,14 +69,39 @@ class Rooms(APIView):
             if serializer.is_valid():
                 category_pk = request.data.get("category") # 해당 카테고리 ID(int)를 불러온다.
                 if not category_pk: # 카테고리 ID를 입력하지 않았을 때
-                    raise ParseError # ParseError : 잘못된 데이터를 입력했을 경우(400)
+                    raise ParseError("Category is required") # ParseError : 잘못된 데이터를 입력했을 경우(400)
                 try:
                     category = Category.objects.get(pk=category_pk) # 카테고리 아이디를 통해 해당 카테고리로 가져온다.
                     if category.kind == Category.CategoryKindChoices.EXPERIENCES: # 해당 카테고리가 존재하지 않는 카테고리면 오류 발생
-                        raise ParseError
+                        raise ParseError("The Category kind should be 'rooms'")
                 except Category.DoesNotExist:
-                    raise ParseError
+                    raise ParseError("Category not found")
                 room = serializer.save(owner=request.user, category=category) # owner에 유저 정보를 담음
+
+                amenities = request.data.get("amenities") # 리스트 형태
+                for amenity_pk in amenities: 
+                    try:
+                        amenity = Amenity.objects.get(pk=amenity_pk)
+                    except Amenity.DoesNotExist:
+                        room.delete()
+                        raise ParseError(f"Amenity with id {amenity_pk} not found")
+                    
+                    room.amenities.add(amenity) # Amemities와 함께 방 생성(ManytoMany)
+                
+                # 2
+                """
+                 amenities_pk = request.data.get("amenities")
+                 amenities = []
+
+                 for ameniy_pk in amenities_pk:
+                    try:
+                        amenity = Amenity.objects.get(pk=amenity_pk)
+                    except Amenity.DoesNotExist:
+                        raise ParseError(f"Amenity with id: {amenity_pk} not found")
+                        amenities.append(amenity) 
+                room = serializer.save(owner=request.user, category=category, amenities=amenities)
+                """
+
                 serializer = RoomDetailSerializer(room)
                 return Response(serializer.data)
             else:
