@@ -6,6 +6,7 @@ from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError, Pe
 from rooms.models import Amenity, Room
 from categories.models import Category
 from rooms.serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from reviews.serializers import ReviewSerializer
 
 # Create your views here.
 
@@ -161,3 +162,49 @@ class RoomDetail(APIView):
             raise PermissionDenied # 작성자가 맞는지 확인
         room.delete 
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+class RoomReviews(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+        
+    def get(self, request, pk):
+        try:
+            page = request.qurey_params.get("page", 1) # request의 쿼리 파라미터인 "page" 전체 개수를 가져온다. 없으면 1 (?page=4)
+            page = int(page)
+        except ValueError:
+            page = 1
+        
+        page_size = 3
+        start = (page - 1) * page_size
+        end = start  + page_size
+        room = self.get_object(pk)
+        serializer = ReviewSerializer(
+            room.reviews.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)
+    
+
+class RoomAmenities(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        try:
+            page = int(request.query_params.get("page", 1))
+        except Exception as e:
+            page = 1
+        room = self.get_object(pk)
+        page_size = 3
+        start = page_size * (page - 1)
+        end = start + page_size
+        serializer = AmenitySerializer(room.amenities.all()[start:end], many=True)
+
+        return Response(serializer.data)
