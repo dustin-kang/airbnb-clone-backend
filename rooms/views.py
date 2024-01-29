@@ -1,3 +1,4 @@
+from django.db import transaction # https://docs.djangoproject.com/en/4.1/topics/db/transactions/
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -76,34 +77,17 @@ class Rooms(APIView):
                         raise ParseError("The Category kind should be 'rooms'")
                 except Category.DoesNotExist:
                     raise ParseError("Category not found")
-                room = serializer.save(owner=request.user, category=category) # owner에 유저 정보를 담음
-
-                amenities = request.data.get("amenities") # 리스트 형태
-                for amenity_pk in amenities: 
-                    try:
-                        amenity = Amenity.objects.get(pk=amenity_pk)
-                    except Amenity.DoesNotExist:
-                        room.delete()
-                        raise ParseError(f"Amenity with id {amenity_pk} not found")
-                    
-                    room.amenities.add(amenity) # Amemities와 함께 방 생성(ManytoMany)
-                
-                # 2
-                """
-                 amenities_pk = request.data.get("amenities")
-                 amenities = []
-
-                 for ameniy_pk in amenities_pk:
-                    try:
-                        amenity = Amenity.objects.get(pk=amenity_pk)
-                    except Amenity.DoesNotExist:
-                        raise ParseError(f"Amenity with id: {amenity_pk} not found")
-                        amenities.append(amenity) 
-                room = serializer.save(owner=request.user, category=category, amenities=amenities)
-                """
-
-                serializer = RoomDetailSerializer(room)
-                return Response(serializer.data)
+                try:
+                    with transaction.atomic(): # Transaction : 모든 코드가 성공하거나 그렇지 않으면(하나라도 실패) 원래 상태로 되돌아가게 된다.
+                        room = serializer.save(owner=request.user, category=category)
+                        amenities = request.data.get("amenities")
+                        for amenity_pk in amenities:
+                            amenity = Amenity.objects.get(pk=amenity_pk)
+                            room.amenities.add(amenity)
+                        serializer = RoomDetailSerializer(room)
+                        return Response(serializer.data)
+                except Exception:
+                    raise ParseError("Amenity not found") # transaction 에러가 발생할 경우
             else:
                 return Response(serializer.errors)
         else: # 사용자가 아닌경우
