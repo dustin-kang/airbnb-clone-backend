@@ -4,7 +4,7 @@ from wishlists.models import Wishlist
 
 class WishlistSerializer(ModelSerializer):
 
-    room = RoomListSerializer(
+    rooms = RoomListSerializer(
         many = True,
         read_only = True,
     )
