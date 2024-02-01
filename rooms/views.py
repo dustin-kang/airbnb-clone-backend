@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction # https://docs.djangoproject.com/en/4.1/topics/db/transactions/
 from rest_framework import status
 from rest_framework.views import APIView
@@ -202,9 +203,13 @@ class RoomAmenities(APIView):
         except Exception as e:
             page = 1
         room = self.get_object(pk)
-        page_size = 3
+        page_size = settings.PAGE_SIZE
         start = page_size * (page - 1)
         end = start + page_size
         serializer = AmenitySerializer(room.amenities.all()[start:end], many=True)
 
         return Response(serializer.data)
+    
+class RoomPhotos(APIView):
+    def post(self, request, pk):
+        pass

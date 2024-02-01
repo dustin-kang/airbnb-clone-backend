@@ -30,6 +30,9 @@ class RoomDetailSerializer(ModelSerializer):
         return room.owner == request.user # True or False
 
 class RoomListSerializer(ModelSerializer):
+
+    rating = SerializerMethodField()
+    is_owner = SerializerMethodField()
     class Meta:
         model = Room
         fields = ["pk", "name", "country", "city", "price", "rating","is_owner",]

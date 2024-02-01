@@ -134,9 +134,16 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_ROOT = 'uploads' # 파일이 저장될 폴더(경로)
+
+MEDIA_URL = "user-uploads/" # 노출시키기 위해 config에 url을 설정해야 한다.
+
+PAGE_SIZE = 3 # 모든 페이지 사이즈가 동일
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
