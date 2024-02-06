@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import transaction # https://docs.djangoproject.com/en/4.1/topics/db/transactions/
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,6 +11,8 @@ from categories.models import Category
 from rooms.serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
+from bookings.models import Booking
+from bookings.serializers import PublicBookingSerializer
 
 # Create your views here.
 
@@ -61,7 +64,6 @@ class AmenityDetail(APIView):
         amenity.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-
 class Rooms(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -162,7 +164,6 @@ class RoomDetail(APIView):
         room.delete 
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-
 class RoomReviews(APIView):
 
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -200,7 +201,6 @@ class RoomReviews(APIView):
             serializer = ReviewSerializer(review)
             return Response(serializer.data)
     
-
 class RoomAmenities(APIView):
     def get_object(self, pk):
         try:
@@ -242,3 +242,20 @@ class RoomPhotos(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+        
+class RoomBookings(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except:
+            raise NotFound
+        
+    def get(self, request, pk):
+        room = self.get_object(pk)
+        now = timezone.localtimne(timezone.now()).data()
+        bookings = Booking.objects.filter(room=room, kind=Booking.BookingKindChoices.ROOM, check_in__gt=now,)
+        serializer = PublicBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
