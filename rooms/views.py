@@ -32,7 +32,7 @@ class Amenities(APIView):
                 AmenitySerializer(amenity).data,
             )
         else:
-            return Response(serializers.errors)
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AmenityDetail(APIView):
 
@@ -96,7 +96,7 @@ class Rooms(APIView):
             except Exception:
                 raise ParseError("Amenity not found") # transaction 에러가 발생할 경우
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class RoomDetail(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -152,7 +152,7 @@ class RoomDetail(APIView):
                 )
                 return Response(RoomDetailSerializer(updated_room).data)
         else:
-            return Response(serializer.errors)       
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)       
                     
 
         
